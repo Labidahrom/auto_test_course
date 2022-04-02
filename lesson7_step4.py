@@ -9,8 +9,6 @@ try:
     browser = webdriver.Chrome()
     link = "http://suninjuly.github.io/file_input.html"
     browser.get(link)
-
-
     name_input = browser.find_element(By.XPATH, "//input[@name = 'firstname']")
     name_input.send_keys("Хай")
     surname_input = browser.find_element(By.XPATH, "//input[@name = 'lastname']")
