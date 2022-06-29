@@ -21,11 +21,11 @@
 # Пример реализации теста
 Для наглядности можно разобрать тест-кейс test_should_be_right_location из набора тест - кейсов главной страницы (test_main_page.py). Тест проверяет правильность определение геопозиции пользователя сайта:
 
-def test_should_be_right_location(browser):
-    page = MainPage(browser)  # создаем объект класса MainPage чтобы получить доступ ко всем методам главной страницы
-    page.open("https://makmen.ru")  # открыть сайт
-    page.click_on_accept_city_in_popup_massage()  # кликнуть по кнопке "Принять город"
-    page.should_be_current_user_city_in_header("Санкт-Петербург")  # Проверка ожидаемого результата
+    def test_should_be_right_location(browser):
+        page = MainPage(browser)  # создаем объект класса MainPage чтобы получить доступ ко всем методам главной страницы
+        page.open("https://makmen.ru")  # открыть сайт
+        page.click_on_accept_city_in_popup_massage()  # кликнуть по кнопке "Принять город"
+        page.should_be_current_user_city_in_header("Санкт-Петербург")  # Проверка ожидаемого результата
 
 Как видно, каждый шаг в тест кейсе представляет собой отдельный метод, по названию которого можно понять какое действие пользователя он реализует. Код методов этого тест-кейса описан в файле MainPage.py, передача метода происходит при инициализации объекта Page. Для проверки ожидаемого результата используется функция с названием should_be_current_user_city_in_header("Санкт-Петербург"), которая реализована в виде проверки ожидаемого значения названия города пользователя (его мы передаем как параметр функции) с фактическим.
  
@@ -35,8 +35,8 @@ def test_should_be_right_location(browser):
         button = self.browser.find_element(*MainPageLocators.CITY_POPUP_YES_BUTTON)  # найти элемент
         button.click()  # кликнуть по элементу
 
-В свою очередь элемент *MainPageLocators.CITY_POPUP_YES_BUTTON импортирован из модуля locators.py, и реализован через поиск элемента по CSS селектору:
-CITY_POPUP_YES_BUTTON = (By.CSS_SELECTOR, "input.prmn-cmngr__confirm-btn.btn-primary")
+В свою очередь элемент «*MainPageLocators.CITY_POPUP_YES_BUTTON» импортирован из модуля locators.py, и реализован через поиск элемента по CSS селектору:
+        «CITY_POPUP_YES_BUTTON = (By.CSS_SELECTOR, "input.prmn-cmngr__confirm-btn.btn-primary")»
 
 
 Такая структура упрощает поддержку тестов в работоспособном состоянии, поскольку:
