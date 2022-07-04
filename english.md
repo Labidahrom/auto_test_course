@@ -7,58 +7,57 @@ This tests use ***Page Object model***. That means that test methods are grouped
 * *test_main_page.py* - main page test suites
 * *test_catalog_page.py* - catalog page test suites
 * *test_product_page.py* - product page test suites
-2. **Файлы с кодом методов из тест кейсов (то есть где эти методы реализованы)**. Как и наборы тест кейсов, методы группируются по классам исходя из их принадлежности определенным страницам сайта. К этой группе относятся 4 файла:
-* test_main_page.py - main page test suites
-* test_catalog_page.py - catalog page test suites
-* test_product_page.py - product page test suites
-* *cart_page.py* - методы страницы корзины
-3. **Различные вспомогательные файлы**:
-* *base_page.py* - здесь описан базовый класс с методами, которые используют все остальные дочерние классы теста
-* *locators.py* - здесь селекторы для всех тестов
-* *conftest.py* - фикстуры и параметры Pytest
-* *pytest.ini* - описания маркеров тестов для Pytest
+2. **Files with method codes from test cases (where these methods are implemented)**. Like suites of test cases, methods are grouped into classes based on their belonging to certain pages. This group includes 4 files:
+* *main_page.py* - main page methods
+* *catalog_page.py* - catalog page methods
+* *product_page.py* - product page methods
+* *cart_page.py* - cart page methods
+3. **Support files**:
+* *base_page.py* - parent class for all other classes
+* *locators.py* - selectors for all tests here
+* *conftest.py* - Pytest fixtures and parameters
+* *pytest.ini* - test marker descriptions for Pytest
 
-# Пример реализации тест - кейса
-Для наглядности можно разобрать тест-кейс `test_should_be_right_location` из набора тест - кейсов главной страницы (*test_main_page.py*). Тест проверяет правильность определения геопозиции пользователя сайта:
+# Example of a test case implementation
+For example we can take test case `test_should_be_right_location` from the set of test cases of the main page (*test_main_page.py*). The test checks the correctness of determining the geolocation of the site user::
 
     def test_should_be_right_location(browser):
-        page = MainPage(browser)  # создаем объект класса MainPage чтобы получить доступ ко всем методам главной страницы
-        page.open("https://makmen.ru")  # открыть сайт
-        page.click_on_accept_city_in_popup_massage()  # кликнуть по кнопке "Принять город"
-        page.should_be_current_user_city_in_header("Санкт-Петербург")  # Проверка ожидаемого результата
+        page = MainPage(browser)  # create an object of the MainPage class to access all methods of the main page
+        page.open("https://makmen.ru")  # open website
+        page.click_on_accept_city_in_popup_massage()  # click on the "Accept city" button
+        page.should_be_current_user_city_in_header("Санкт-Петербург")  # Check expected result
 
-Как видно, каждый шаг в тест кейсе представляет собой отдельный метод, по названию которого можно понять какое действие пользователя он реализует. Код методов этого тест-кейса описан в файле *MainPage.py*, передача метода происходит при инициализации объекта Page. Для проверки ожидаемого результата используется функция с названием `should_be_current_user_city_in_header("Санкт-Петербург")`, которая реализована в виде проверки ожидаемого значения названия города пользователя (его мы передаем как параметр функции) с фактическим.
+As we can see, each step in the test case is a separate method with name that means what user action it implements. The code for the methods of this test case is described in the *MainPage.py* file а сами методы передаются при создании объекта класса. To check the expected result, a function called `should_be_current_user_city_in_header("St. Petersburg")` is used, which is implemented as a check of the expected value of the user's city name (it is passed as a function parameter) with the actual value.
  
-Далее разберем один из методов приведенного выше тест кейса: click_on_accept_city_in_popup_massage(). Метод реализует клик пользователя по кнопке подтверждения выбора города, в коде же это выглядит как присваивание переменной элементу кнопки и далее передачи клика по ней:
+Next, let's take one of the methods of the above test case: `click_on_accept_city_in_popup_massage()`. The method implements the user's click on the city selection confirmation button. This implemented like assigning a variable to the button element and then passing the click on it:
 
     def click_on_accept_city_in_popup_massage(self):
-        button = self.browser.find_element(*MainPageLocators.CITY_POPUP_YES_BUTTON)  # найти элемент
-        button.click()  # кликнуть по элементу
+        button = self.browser.find_element(*MainPageLocators.CITY_POPUP_YES_BUTTON)  # find element
+        button.click()  # click on an element
 
-В свою очередь элемент `*MainPageLocators.CITY_POPUP_YES_BUTTON` импортирован из модуля *locators.py*, и реализован через поиск элемента по CSS селектору:
-`CITY_POPUP_YES_BUTTON = (By.CSS_SELECTOR, "input.prmn-cmngr__confirm-btn.btn-primary")`
+Selector `MainPageLocators.CITY_POPUP_YES_BUTTON` is imported from the *locators.py* module, and implemented by searching for the element by the CSS selector: `CITY_POPUP_YES_BUTTON = (By.CSS_SELECTOR, "input.prmn-cmngr__confirm-btn.btn-primary")`
 
-Такая структура упрощает поддержку тестов в работоспособном состоянии, поскольку:
-1. Дает возможность составлять разные тест кейсы без внесения изменений в код функций. Когда каждый шаг пользователя описан как отдельная функция, очень легко составлять новые тест кейсы просто собирая их из готовых методов как конструктор. Например мы легко можем сделать большой негативный набор тестов формы обратной связи, просто убрав из него часть шагов по заполнению полей или передав в них невалидные значения
-2. Достаточно легкое изменение кода самих функций, поскольку локаторы элементов также вынесены в отдельных модуль. Если меняется CSS идентификатор самого элемента, мы редактируем код этого идентификатора в отдельном файле, не трогая код самой функции. Точно так если нам нужно поменять что то в тестовом окружении (например вместо браузера Chrome провести тесты в Firefox), нам не нужно менять код функций, а нужно лишь поменять драйвер браузера в файле *conftest.py*.
+This structure helps keep tests running because:
+1. It allows to create different test cases without making changes to the function code. When each step of the user is described as a separate function, it is very easy to create new test cases by simply collecting them from ready-made methods as a constructor. For example, we can easily make any negative tests by removing some of the steps for filling in the fields from it or passing invalid values to them.
+2. A fairly easy change in the code of the functions themselves, since the element locators are also placed in a separate module. If the CSS identifier of the element itself changes, we edit the code of this identifier in a separate file without touching the code of the function itself. Similarly, if we need to change something in the test environment (for example, instead of the Chrome browser, run tests in Firefox), we don't need to change the function code, but only need to change the browser driver in the *conftest.py* file.
+
  
-# Требования к тестовому окружению и способы запуска тестов
-## Требования к тестовому окружению
-Ниже приведен список приложений необходимых для работы данного набора тестов:
-* ОС Windows
-* Python (не ниже версии 3.0)
+# Requirements for the test environment and how to run tests
+## Test environment requirements
+Below is a list of applications required for this test suite to work:
+* Windows
+* Python (at least version 3.0)
 * Selenium WebDriver
 * Pytest
 * Google Chrome
-* драйвер браузера Google Chrome ChromeDriver
+* ChromeDriver for Google Chrome
 
-## Запуск тестов
-Запуск тестов производиться из командной строки. Всего для запуска есть 3 файла с наборами тест кейсов:
+## Running Tests
+Tests are run from the command line. In total, there are 3 files with sets of test cases to run:
 * *test_main_page.py*
 * *test_catalog_page.py*
 * *test_product_page.py*
 
-При запуске необходимо указывать тесты какой версии сайта (мобильной или пк) при помощи передачи параметра в командную строку. Запуск ПК версии тестов производиться сочетанием:
-pytest -m pc test_main_page.py - будут запущены все тесты ПК версии сайта для главной страницы
-При запуске мобильных тестов, помимо основной маркировки также необходимо указать размер экрана:
-pytest -m mobile –screen=mobile test_main_page.py - будут запущены все тесты мобильной версии для главной страницы
+When starting, you must specify which version of the site you want to test (mobile or PC). This is done by passing a parameter to the command line. The launch of the PC version of the tests is done by the combination: 
+pytest -m pc test_main_page.py - all tests of the PC version of the site for the main page will be launched. 
+pytest -m mobile –screen=mobile test_main_page.py - all tests of the mobile version for the main page will be launched
